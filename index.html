@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pharma Export — Catalogue</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --primary:#0a66c2; /* pleasant blue */
+      --accent:#1e90ff;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --success:#16a34a;
+      --glass: rgba(255,255,255,0.8);
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,Arial,sans-serif;
+      background:linear-gradient(180deg,#f6f8fb 0%,var(--bg) 100%);
+      color:#0f172a;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* Header */
+    header{
+      position:sticky;
+      top:0;
+      z-index:60;
+      background:var(--card);
+      border-bottom:1px solid rgba(12,18,30,0.06);
+      backdrop-filter: blur(6px);
+      display:flex;
+      align-items:center;
+      gap:20px;
+      padding:14px 28px;
+      box-shadow:0 6px 20px rgba(12,18,30,0.04);
+    }
+    .logo {
+      display:flex;
+      gap:12px;
+      align-items:center;
+      text-decoration:none;
+      color:var(--primary);
+    }
+    .logo .mark {
+      width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px;box-shadow:0 6px 18px rgba(14,60,120,0.12);
+    }
+    .logo .title { font-weight:700; font-size:18px; }
+    .header-actions{ margin-left:auto; display:flex; gap:12px; align-items:center; }
+
+    /* Search */
+    .search {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:8px 12px;
+      border-radius:12px;
+      background:var(--glass);
+      border:1px solid rgba(12,18,30,0.04);
+      width:460px;
+      transition:box-shadow .18s ease;
+    }
+    .search:focus-within{ box-shadow:0 6px 20px rgba(30,144,255,0.08); }
+    .search input{
+      border:0;outline:0;background:transparent;font-size:15px;width:100%;
+    }
+    .icon { font-size:18px;color:var(--muted) }
+
+    /* Layout */
+    .container{
+      max-width:1200px;margin:26px auto;padding:0 20px;display:grid;grid-template-columns:260px 1fr;gap:24px;
+    }
+
+    /* Sidebar Filters */
+    .sidebar{
+      background:var(--card);
+      padding:18px;border-radius:12px;border:1px solid rgba(12,18,30,0.04);
+      height:fit-content;
+      box-shadow:0 6px 18px rgba(12,18,30,0.02);
+    }
+    .filter-group{ margin-bottom:16px }
+    .filter-group h4{ margin:0 0 10px 0; font-size:14px; color:var(--muted) }
+    .chips{ display:flex; flex-wrap:wrap; gap:8px }
+    .chip{ padding:8px 10px;border-radius:999px;background:#f1f5f9;cursor:pointer;font-size:13px;color:#123; }
+    .chip.active{ background:linear-gradient(90deg,var(--primary),var(--accent)); color:#fff; box-shadow:0 8px 24px rgba(14,60,120,0.08); }
+
+    /* Main area */
+    .toolbar{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px }
+    .sort { display:flex; align-items:center; gap:8px; color:var(--muted); font-size:14px }
+
+    /* Grid */
+    .grid {
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap:18px;
+    }
+    .card{
+      background:var(--card);
+      border-radius:12px;padding:14px;border:1px solid rgba(12,18,30,0.04);
+      display:flex;flex-direction:column;gap:10px;height:100%;
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+    .card:hover{ transform:translateY(-6px); box-shadow:0 18px 40px rgba(12,18,30,0.06); }
+    .thumb{
+      height:140px;border-radius:10px;overflow:hidden;background:#eef3ff;display:flex;align-items:center;justify-content:center;
+    }
+    .thumb img{ width:100%;height:100%;object-fit:cover; }
+
+    .pname{ font-weight:600;color:var(--primary); font-size:15px; }
+    .maker{ color:var(--muted); font-size:13px }
+    .meta{ display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:auto }
+
+    .price-badge{ background:linear-gradient(90deg,#06b6d4,#0ea5e9); color:#fff;padding:6px 10px;border-radius:8px;font-weight:600;font-size:14px; }
+
+    .btn {
+      display:inline-flex;align-items:center;gap:8px;border:0;padding:10px 12px;border-radius:12px;background:var(--accent);color:white;cursor:pointer;font-weight:600;
+      transition:transform .12s ease, box-shadow .12s ease;
+    }
+    .btn:active{ transform:translateY(1px); }
+    .btn.ghost{ background:transparent;color:var(--primary);border:1px solid rgba(12,18,30,0.06) }
+
+    /* Floating cart */
+    .cart-fab{
+      position:fixed;right:20px;bottom:20px;background:var(--primary);color:white;padding:14px 18px;border-radius:999px;display:flex;gap:10px;align-items:center;z-index:200;
+      box-shadow:0 18px 40px rgba(12,18,30,0.12);cursor:pointer;
+    }
+    .badge{ background:#ffde59;color:#071; padding:6px 8px;border-radius:999px;font-weight:700 }
+
+    /* Drawer */
+    .drawer{
+      position:fixed;right:0;top:0;height:100%;width:420px;background:var(--card);box-shadow:-30px 0 60px rgba(12,18,30,0.12);transform:translateX(110%);transition:transform .28s cubic-bezier(.2,.9,.3,1);z-index:300;padding:20px;overflow:auto;
+    }
+    .drawer.open{ transform:translateX(0); }
+    .drawer h3{ margin:0 0 8px 0 }
+    .cart-item{ display:flex; gap:12px; align-items:center; padding:10px 0;border-bottom:1px solid rgba(12,18,30,0.04) }
+    .cart-item img{ width:56px;height:56px;border-radius:8px;object-fit:cover }
+    .qty{ display:flex; gap:6px; align-items:center }
+    .qty button{ border:0;background:#eef2ff;padding:6px 8px;border-radius:8px;cursor:pointer }
+
+    /* Pagination */
+    .pagination{ display:flex; gap:10px; justify-content:center; margin:22px 0 40px 0 }
+    .page{ padding:8px 12px;border-radius:8px;background:#fff;border:1px solid rgba(12,18,30,0.04);cursor:pointer }
+    .page.active{ background:linear-gradient(90deg,var(--primary),var(--accent)); color:white; box-shadow:0 14px 34px rgba(14,60,120,0.08); }
+
+    /* Responsive */
+    @media (max-width:980px){ .container{ grid-template-columns:1fr; padding:0 14px } .sidebar{ order:2 } .drawer{ width:100%; } }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="#">
+    <div class="mark">PX</div>
+    <div>
+      <div class="title">Pharma Export</div>
+      <div style="font-size:12px;color:var(--muted)">Trusted Medical Catalogue</div>
+    </div>
+  </a>
+
+  <div style="flex:1;display:flex;justify-content:center">
+    <div class="search">
+      <span class="icon">🔎</span>
+      <input id="search" placeholder="Search medicine, manufacturer, SKU..." oninput="applyFilters()" />
+      <button class="btn ghost" style="padding:8px 10px;margin-left:8px" onclick="clearFilters()">Clear</button>
+    </div>
+  </div>
+
+  <div class="header-actions">
+    <div style="font-size:13px;color:var(--muted)">Catalog Preview</div>
+    <div style="width:12px"></div>
+  </div>
+</header>
+
+<main class="container">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="filter-group">
+      <h4>Category</h4>
+      <div id="categories" class="chips"></div>
+    </div>
+
+    <div class="filter-group">
+      <h4>Manufacturer</h4>
+      <div id="makers" class="chips"></div>
+    </div>
+
+    <div class="filter-group">
+      <h4>Price Range</h4>
+      <div style="display:flex;gap:8px">
+        <input id="minPrice" type="number" placeholder="Min" style="flex:1;padding:8px;border-radius:8px;border:1px solid #e6eefc" />
+        <input id="maxPrice" type="number" placeholder="Max" style="flex:1;padding:8px;border-radius:8px;border:1px solid #e6eefc" />
+      </div>
+      <div style="margin-top:10px">
+        <button class="btn ghost" onclick="applyFilters()">Apply</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <section>
+    <div class="toolbar">
+      <div style="font-size:13px;color:var(--muted)"><strong id="resultCount">0</strong> products</div>
+      <div class="sort">
+        <label style="color:var(--muted)">Sort:</label>
+        <select id="sortBy" onchange="applyFilters()" style="padding:8px;border-radius:8px;border:1px solid rgba(12,18,30,0.06)">
+          <option value="featured">Featured</option>
+          <option value="name-asc">Name A→Z</option>
+          <option value="name-desc">Name Z→A</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+
+    <div class="pagination" id="pagination"></div>
+  </section>
+</main>
+
+<!-- Floating cart button -->
+<div class="cart-fab" id="cartFab" onclick="toggleDrawer()">
+  <div style="font-weight:700">🛒</div>
+  <div>
+    <div style="font-size:13px">Enquiry Cart</div>
+    <div style="font-size:13px"><span id="cartSummary">0 items</span></div>
+  </div>
+  <div style="margin-left:auto" class="badge" id="cartCount">0</div>
+</div>
+
+<!-- Drawer -->
+<aside class="drawer" id="drawer">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <h3>Your Enquiry</h3>
+    <button class="btn ghost" onclick="toggleDrawer()">Close</button>
+  </div>
+
+  <div id="cartList" style="margin-top:12px"></div>
+
+  <div style="margin-top:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-weight:700">Total Items</div>
+      <div id="totalItems">0</div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button class="btn" onclick="checkout()">Proceed to Enquire</button>
+      <button class="btn ghost" onclick="clearCart()">Clear</button>
+    </div>
+  </div>
+</aside>
+
+<script>
+/* ---------- Data (40 products) ---------- */
+const products = [
+  { id:1, name:"Paracetamol 500mg", maker:"Cipla", category:"Analgesic", price:2.5 },
+  { id:2, name:"Azithromycin 250mg", maker:"Sun Pharma", category:"Antibiotic", price:6.0 },
+  { id:3, name:"Amoxicillin 500mg", maker:"Glenmark", category:"Antibiotic", price:5.0 },
+  { id:4, name:"Metformin 500mg", maker:"Zydus", category:"Antidiabetic", price:3.0 },
+  { id:5, name:"Atorvastatin 10mg", maker:"Torrent Pharma", category:"Cardiac", price:4.5 },
+  { id:6, name:"Ibuprofen 400mg", maker:"Cipla", category:"Analgesic", price:3.2 },
+  { id:7, name:"Pantoprazole 40mg", maker:"Sun Pharma", category:"Gastro", price:4.0 },
+  { id:8, name:"Levofloxacin 500mg", maker:"Alkem", category:"Antibiotic", price:7.0 },
+  { id:9, name:"Cetirizine 10mg", maker:"Intas", category:"Antiallergic", price:2.0 },
+  { id:10, name:"Losartan 50mg", maker:"Dr. Reddy", category:"Cardiac", price:4.2 },
+  { id:11, name:"Diclofenac 50mg", maker:"Cipla", category:"Analgesic", price:2.8 },
+  { id:12, name:"Doxycycline 100mg", maker:"Zydus", category:"Antibiotic", price:5.5 },
+  { id:13, name:"Clopidogrel 75mg", maker:"Sun Pharma", category:"Cardiac", price:6.5 },
+  { id:14, name:"Ranitidine 150mg", maker:"Glenmark", category:"Gastro", price:1.8 },
+  { id:15, name:"Folic Acid 5mg", maker:"Cipla", category:"Supplement", price:1.5 },
+  { id:16, name:"Vitamin C 500mg", maker:"Zydus", category:"Supplement", price:2.2 },
+  { id:17, name:"Vitamin D3 60000 IU", maker:"Torrent Pharma", category:"Supplement", price:9.0 },
+  { id:18, name:"Amiodarone 200mg", maker:"Sun Pharma", category:"Cardiac", price:8.0 },
+  { id:19, name:"Propranolol 40mg", maker:"Intas", category:"Cardiac", price:3.6 },
+  { id:20, name:"Amlodipine 5mg", maker:"Glenmark", category:"Cardiac", price:2.9 },
+  { id:21, name:"Omeprazole 20mg", maker:"Dr. Reddy", category:"Gastro", price:3.1 },
+  { id:22, name:"Ciprofloxacin 500mg", maker:"Cipla", category:"Antibiotic", price:5.8 },
+  { id:23, name:"Fluconazole 150mg", maker:"Zydus", category:"Antifungal", price:4.6 },
+  { id:24, name:"Montelukast 10mg", maker:"Sun Pharma", category:"Respiratory", price:3.9 },
+  { id:25, name:"Cetirizine Syrup", maker:"Cipla", category:"Antiallergic", price:2.6 },
+  { id:26, name:"ORS Powder", maker:"Dabur", category:"Rehydration", price:1.2 },
+  { id:27, name:"Multivitamin Tablets", maker:"Intas", category:"Supplement", price:6.2 },
+  { id:28, name:"Iron + Calcium Tablets", maker:"Glenmark", category:"Supplement", price:5.2 },
+  { id:29, name:"Zinc Sulphate Tablets", maker:"Zydus", category:"Supplement", price:2.2 },
+  { id:30, name:"Hydroxychloroquine 200mg", maker:"Ipca", category:"Antimalarial", price:7.1 },
+  { id:31, name:"Warfarin 5mg", maker:"Sun Pharma", category:"Cardiac", price:6.8 },
+  { id:32, name:"Hydralazine 50mg", maker:"Dr. Reddy", category:"Cardiac", price:4.4 },
+  { id:33, name:"Digoxin 0.25mg", maker:"Cipla", category:"Cardiac", price:9.5 },
+  { id:34, name:"Insulin Glargine", maker:"Biocon", category:"Antidiabetic", price:45.0 },
+  { id:35, name:"Heparin Injection", maker:"Zydus", category:"Anticoagulant", price:12.0 },
+  { id:36, name:"Metronidazole 400mg", maker:"Glenmark", category:"Antibiotic", price:3.7 },
+  { id:37, name:"Salbutamol Inhaler", maker:"Cipla", category:"Respiratory", price:8.9 },
+  { id:38, name:"Budesonide Inhaler", maker:"Sun Pharma", category:"Respiratory", price:14.0 },
+  { id:39, name:"Thyroxine 50mcg", maker:"Intas", category:"Hormone", price:4.0 },
+  { id:40, name:"Glimepiride 2mg", maker:"Zydus", category:"Antidiabetic", price:2.7 }
+];
+
+/* ---------- State ---------- */
+let activeCategory = null;
+let activeMaker = null;
+let searchQuery = '';
+let sortBy = 'featured';
+let currentPage = 1;
+const PAGE_SIZE = 10;
+let cart = [];
+
+/* ---------- Helpers ---------- */
+function thumbUrl(item){
+  // simple placeholder image with product name
+  const text = encodeURIComponent(item.name.split(' ')[0]);
+  return `https://via.placeholder.com/400x300.png?text=${text}`;
+}
+
+/* ---------- Derived lists for filters ---------- */
+const categories = Array.from(new Set(products.map(p => p.category))).sort();
+const makers = Array.from(new Set(products.map(p => p.maker))).sort();
+
+/* ---------- Render filters ---------- */
+function renderFilters(){
+  const catEl = document.getElementById('categories');
+  categories.forEach(cat=>{
+    const el = document.createElement('button');
+    el.className='chip'+(cat===activeCategory?' active':'');
+    el.innerText = cat;
+    el.onclick = ()=>{
+      activeCategory = (activeCategory===cat? null: cat);
+      currentPage = 1;
+      render();
+    };
+    catEl.appendChild(el);
+  });
+
+  const makerEl = document.getElementById('makers');
+  makers.forEach(mk=>{
+    const el = document.createElement('button');
+    el.className='chip'+(mk===activeMaker?' active':'');
+    el.innerText = mk;
+    el.onclick = ()=>{
+      activeMaker = (activeMaker===mk? null: mk);
+      currentPage = 1;
+      render();
+    };
+    makerEl.appendChild(el);
+  });
+}
+
+/* ---------- Apply filters & sorting ---------- */
+function applyFilters(){
+  searchQuery = document.getElementById('search').value.trim().toLowerCase();
+  sortBy = document.getElementById('sortBy') ? document.getElementById('sortBy').value : 'featured';
+  currentPage = 1;
+  render();
+}
+
+function clearFilters(){
+  document.getElementById('search').value = '';
+  document.getElementById('minPrice').value = '';
+  document.getElementById('maxPrice').value = '';
+  activeCategory = null; activeMaker = null; currentPage = 1;
+  render();
+}
+
+/* ---------- Main render ---------- */
+function getFiltered(){
+  let list = products.slice();
+
+  if(activeCategory) list = list.filter(p=>p.category===activeCategory);
+  if(activeMaker) list = list.filter(p=>p.maker===activeMaker);
+
+  const minP = Number(document.getElementById('minPrice').value || 0);
+  const maxP = Number(document.getElementById('maxPrice').value || 0);
+  if(minP) list = list.filter(p=>p.price >= minP);
+  if(maxP) list = list.filter(p=>p.price <= maxP);
+
+  if(searchQuery){
+    list = list.filter(p=>
+      p.name.toLowerCase().includes(searchQuery) ||
+      p.maker.toLowerCase().includes(searchQuery) ||
+      p.category.toLowerCase().includes(searchQuery)
+    );
+  }
+
+  if(sortBy === 'name-asc') list.sort((a,b)=>a.name.localeCompare(b.name));
+  if(sortBy === 'name-desc') list.sort((a,b)=>b.name.localeCompare(a.name));
+
+  return list;
+}
+
+function render(){
+  // filters first time
+  if(!document.getElementById('categories').childElementCount) renderFilters();
+
+  const list = getFiltered();
+  document.getElementById('resultCount').innerText = list.length;
+
+  // pagination
+  const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+  if(currentPage > totalPages) currentPage = totalPages;
+
+  const start = (currentPage-1)*PAGE_SIZE;
+  const pageItems = list.slice(start, start + PAGE_SIZE);
+
+  // render grid
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  pageItems.forEach(p=>{
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.innerHTML = `
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div class="thumb"><img src="${thumbUrl(p)}" alt="${p.name}" /></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="pname">${p.name}</div>
+            <div style="margin-left:auto" class="price-badge">$${p.price.toFixed(2)}</div>
+          </div>
+          <div class="maker">${p.maker} • <span style="color:var(--muted)">${p.category}</span></div>
+          <div style="margin-top:auto;display:flex;gap:8px;align-items:center">
+            <button class="btn" onclick="addToCart(${p.id})"><span>➕</span> Add</button>
+            <button class="btn ghost" onclick="quickView(${p.id})">Details</button>
+          </div>
+        </div>
+      </div>
+    `;
+    grid.appendChild(el);
+  });
+
+  renderPagination(totalPages);
+  updateCartUI();
+}
+
+/* ---------- Pagination ---------- */
+function renderPagination(totalPages){
+  const pEl = document.getElementById('pagination');
+  pEl.innerHTML = '';
+  for(let i=1;i<=totalPages;i++){
+    const btn = document.createElement('button');
+    btn.className = 'page'+(i===currentPage?' active':'');
+    btn.innerText = i;
+    btn.onclick = ()=>{ currentPage = i; render(); window.scrollTo({top:140,behavior:'smooth'}); };
+    pEl.appendChild(btn);
+  }
+}
+
+/* ---------- Cart logic ---------- */
+function addToCart(id){
+  const item = products.find(p=>p.id===id);
+  const found = cart.find(c=>c.id===id);
+  if(found) found.qty++;
+  else cart.push({...item, qty:1});
+  updateCartUI();
+  // subtle toast
+  const fab = document.getElementById('cartFab');
+  fab.animate([{ transform:'translateY(0)'},{ transform:'translateY(-8px)'},{ transform:'translateY(0)'}], { duration:360 });
+}
+
+function updateCartUI(){
+  const count = cart.reduce((s,i)=>s+i.qty,0);
+  document.getElementById('cartCount').innerText = count;
+  document.getElementById('cartSummary').innerText = `${count} items`;
+  document.getElementById('totalItems').innerText = count;
+}
+
+function toggleDrawer(){
+  document.getElementById('drawer').classList.toggle('open');
+  renderCartList();
+}
+
+function renderCartList(){
+  const el = document.getElementById('cartList');
+  el.innerHTML = '';
+  if(cart.length===0){ el.innerHTML = '<div style="padding:20px;color:var(--muted)">Cart is empty</div>'; return; }
+  cart.forEach(ci=>{
+    const node = document.createElement('div');
+    node.className = 'cart-item';
+    node.innerHTML = `
+      <img src="${thumbUrl(ci)}" alt="${ci.name}" />
+      <div style="flex:1">
+        <div style="font-weight:700">${ci.name}</div>
+        <div style="color:var(--muted);font-size:13px">${ci.maker}</div>
+        <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+          <div class="qty">
+            <button onclick="changeQty(${ci.id}, -1)">-</button>
+            <div style="padding:6px 10px;border-radius:8px;background:#f8fafc">${ci.qty}</div>
+            <button onclick="changeQty(${ci.id}, 1)">+</button>
+          </div>
+          <div style="margin-left:auto;font-weight:700">$${(ci.price*ci.qty).toFixed(2)}</div>
+        </div>
+      </div>
+      <div>
+        <button class="btn ghost" onclick="removeItem(${ci.id})">Remove</button>
+      </div>
+    `;
+    el.appendChild(node);
+  });
+}
+
+function changeQty(id, delta){
+  const it = cart.find(c=>c.id===id);
+  if(!it) return;
+  it.qty += delta;
+  if(it.qty < 1) it.qty = 1;
+  updateCartUI();
+  renderCartList();
+}
+
+function removeItem(id){
+  cart = cart.filter(c=>c.id!==id);
+  updateCartUI();
+  renderCartList();
+}
+
+function clearCart(){
+  cart = [];
+  updateCartUI();
+  renderCartList();
+}
+
+/* ---------- Quick view + checkout mocks ---------- */
+function quickView(id){
+  const p = products.find(x=>x.id===id);
+  alert(`${p.name}\n\nManufacturer: ${p.maker}\nCategory: ${p.category}\nPrice: $${p.price.toFixed(2)}\n\n(Quick demo view)`);
+}
+
+function checkout(){
+  if(cart.length===0){ alert('Your cart is empty'); return; }
+  const summary = cart.map(c=>`${c.qty}× ${c.name}`).join('\\n');
+  alert('Enquiry submitted:\\n\\n' + summary + '\\n\\nOur team will contact you.');
+  // clearCart(); // keep cart for demo
+}
+
+/* ---------- Init ---------- */
+render();
+</script>
+
+</body>
+</html>
